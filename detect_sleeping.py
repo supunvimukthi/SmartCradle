@@ -32,11 +32,11 @@ def eye_aspect_ratio(eye):
     # return the eye aspect ratio
     return ear
  
-# start the video stream 
-camera = cv2.VideoCapture(0)
-time.sleep(1.0)
-
 def main_sleeping():
+    # start the video stream 
+    camera = cv2.VideoCapture(0)
+    time.sleep(1.0)
+    
 
     print("[INFO] loading facial landmark predictor...")
     detector = dlib.get_frontal_face_detector()

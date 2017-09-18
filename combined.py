@@ -18,11 +18,6 @@ from sound_detect import restart_line,sound_main
 
 
 if __name__ == '__main__':
-    
-    # start the video stream 
-    camera = cv2.VideoCapture(0)
-    time.sleep(1.0)
-    
     Process(target=sound_main).start()    
     Process(target=main_sleeping).start()
 
