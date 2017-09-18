@@ -37,7 +37,7 @@ stream = p.open(format=FORMAT,
                 input_device_index=2)
 
 
-sys.stdout.write('started recording')
+sys.stdout.write('started recording \n')
 sys.stdout.flush()
 time.sleep(1)
 
@@ -56,7 +56,7 @@ while switch:
         counter2=0
         if counter>TIME_GAP:
             restart_line()
-            sys.stdout.write('Baby Awake \n')
+            sys.stdout.write('Baby Awake            ')
             sys.stdout.flush() 
             counter=0
     else:
@@ -64,7 +64,7 @@ while switch:
         counter2+=1
         if counter2>TIME_GAP:
             restart_line()
-            sys.stdout.write('Baby Asleep \n')
+            sys.stdout.write('Baby Asleep             ')
             sys.stdout.flush() 
             counter2=0
        
