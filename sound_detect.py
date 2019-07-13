@@ -9,15 +9,16 @@ import pyaudio
 import audioop
 import sys
 import time
-#import cv2
+from Database import write_to_firebase_audio
 
 CHUNK=1024
 FORMAT=pyaudio.paInt16
 CHANNELS=2
 RATE=44100
 
-THRESH = 1500
-TIME_GAP=10
+THRESH = 100
+TIME_GAP=50
+making_Sound=0
 
 def restart_line():
 #    Replaces a line printed on command line
@@ -34,14 +35,12 @@ def sound_main():
                     channels=CHANNELS,
                     rate=RATE,
                     input=True,
-                    frames_per_buffer=CHUNK,
-                    input_device_index=2)
+                    frames_per_buffer=CHUNK)
     
     
     sys.stdout.write('started recording \n')
     sys.stdout.flush()
     time.sleep(1)
-
     counter=0
     counter2=0
     
@@ -55,7 +54,9 @@ def sound_main():
             counter2=0
             if counter>TIME_GAP:
                 restart_line()
-                sys.stdout.write('Baby Awake             ')
+                sys.stdout.write('Baby Awake')
+                making_Sound=1
+                write_to_firebase_audio(making_sound)
                 sys.stdout.flush() 
                 counter=0
         else:
@@ -63,7 +64,9 @@ def sound_main():
             counter2+=1
             if counter2>TIME_GAP:
                 restart_line()
-                sys.stdout.write('Baby Asleep         ')
+                sys.stdout.write('Baby Asleep')
+                making_Sound=0
+                write_to_firebase_audio(making_sound)
                 sys.stdout.flush() 
                 counter2=0
            
@@ -79,6 +82,8 @@ def sound_main():
     stream.stop_stream()
     stream.close()
     p.terminate()
+def get_sound():
+    return making_Sound
 
 if __name__ == '__main__':
-    sound_main()
+    Process(target=sound_main,args=(dataArray)).start()  

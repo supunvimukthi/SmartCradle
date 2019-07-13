@@ -1,7 +1,3 @@
-# USAGE
-# python detect_sleeping.py 
-
-# import the necessary packages
 from multiprocessing import Process
 from scipy.spatial import distance as dist
 from imutils import face_utils
@@ -10,6 +6,12 @@ import time
 import dlib
 import cv2
 import sys
+import requests
+import json
+from Database import update_Database
+from sound_detect import get_sound
+dataArray=[0,0,0]
+
 
 def restart_line():
 #    Replaces a line printed on command line
@@ -93,8 +95,10 @@ def main_sleeping():
                 COUNTER += 1
                 if COUNTER >= EYE_AR_CONSEC_FRAMES:
                     state="sleeping" 
+                    dataArray[0]=1
                 else:
                     state="awake"
+                    dataArray[0]=2
     
             # otherwise, the eye aspect ratio is not below the blink
             # threshold
@@ -102,6 +106,7 @@ def main_sleeping():
                 # if the eyes were closed for a sufficient number of
                 # then increment the total number of blinks
                 state="awake"
+                dataArray[0]=2
                 # reset the eye frame counter
                 COUNTER = 0
     
@@ -116,6 +121,7 @@ def main_sleeping():
         if (not Eyes_Visible):
             cv2.putText(frame, "Eyes not visible", (10, 40),
             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            dataArray[0]=0
         
         gray1 = cv2.GaussianBlur(gray, (21, 21), 0)
         gray1 = cv2.GaussianBlur(gray, (7, 7), 0)
@@ -135,15 +141,23 @@ def main_sleeping():
             counter+=1
             if counter>10:
                 text = "Child is moving"
+                dataArray[1]=1
         else:
             counter=0
             text= "Child not moving"
+            dataArray[1]=0
         
-        # draw the text and timestamp on the frame
+        # draw the text on the frame
         cv2.putText(frame, text, (10, 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            
+        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+        
+        #transmit data to cloud
+        update_Database(dataArray)
+        
+        
+        
         cv2.imshow("Child Video Feed", frame)
+        
      
         # if the `q` key was pressed, break from the loop
         if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -154,4 +168,4 @@ def main_sleeping():
     cv2.destroyAllWindows()
     
 if __name__ == '__main__':
-    Process(target=main_sleeping).start()
+    Process(target=main_sleeping,args=(dataArray)).start()
